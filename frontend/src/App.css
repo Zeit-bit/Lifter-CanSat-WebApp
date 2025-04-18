@@ -1,0 +1,47 @@
+* {
+    background-color: rgb(16, 16, 16);
+    color: white;
+}
+
+#container {
+    background-color: rgb(23, 23, 23);
+    width: 560px;
+    border: 2.8px solid rgb(175, 175, 175);
+    margin: auto;
+    margin-top: 21vh;
+}
+
+#title {
+    background-color: rgb(38, 45, 81);
+    border: 2.8px solid rgb(175, 175, 175);
+    text-align: center;
+    color:rgb(255, 255, 255);
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+    padding: 14px;
+    margin: auto;
+    font-size: 2.5em;
+}
+
+.notification {
+    color: rgb(255, 255, 255);
+    text-align: center;
+    background-color: darkcyan;
+    padding: 7px;
+    border-radius: 14px;
+    border: 1.4px solid white;
+    width: 420px;
+    margin: auto;
+    margin-top: 28px;
+    margin-bottom: 322px;
+    font-size: 2em;
+}
+
+.datos {
+    padding: 14px;
+    background-color: rgb(35, 36, 42);
+    border-radius: 14px;
+    box-shadow: 0px 7px 7px rgb(19, 19, 19);
+    margin-left: 15%;
+    margin-right: 15%;
+    font-size: 1.5em;
+}
