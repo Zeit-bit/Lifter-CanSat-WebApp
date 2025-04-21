@@ -31,6 +31,7 @@ const ConectarPuerto = () => {
   port.on('open', () => {
     console.log('Puerto abierto')
     estadoArduino = true
+    lineasDelSerial = [] // resetea las lineas en caso de reconexion
     io.emit('arduino-conectado', estadoArduino) // Emitimos el estado de conexion del arduino a las conexiones suscritas
   })
 
@@ -43,14 +44,15 @@ const ConectarPuerto = () => {
     lineasDelSerial.push(line) // Añadimos la linea a nuestra lista
 
     // Parseamos las lineas como Json cuando tenemos 5 lineas
-    if (lineasDelSerial.length === 5) {
-      lineasDelSerial = lineasDelSerial.map(linea => linea.split(':')[1])
+    if (lineasDelSerial.length === 6) {
+      lineasDelSerial = lineasDelSerial.map(linea => linea.split(': ')[1])
       jsonDeDatos = {
         co2: parseFloat(lineasDelSerial[0]),
         temperatura: parseFloat(lineasDelSerial[1]),
         presion: parseFloat(lineasDelSerial[2]),
         velocidad_vertical: parseFloat(lineasDelSerial[3]),
-        aceleracion_neta: parseFloat(lineasDelSerial[4])
+        aceleracion_neta: parseFloat(lineasDelSerial[4]),
+        rotaciones: lineasDelSerial[5].split(' ').map(item => parseFloat(item))
       }
 
       io.emit('nuevos-datos', jsonDeDatos) // Emitimos el json a todas las conexiones suscritas (para renderizar en el frontend)

@@ -3,7 +3,10 @@ void setup()
 	Serial.begin(9600);
 }
 
-int a = 0;
+float a = 0;
+float x = 0;
+float y = 1;
+float z = 2;
 
 void loop()
 {
@@ -40,6 +43,15 @@ void loop()
     Serial.print(acc);
     Serial.println(" m/s²");
 
+    Serial.print("Rotaciones: ");
+    Serial.print(x);
+    Serial.print(" ");
+    Serial.print(y);
+    Serial.print(" ");
+    Serial.println(z);
+
     a++;
-    delay(1000);
+    x += 5 * PI/180;
+    y += 5 * PI/180;
+    z += 5 * PI/180;
 }

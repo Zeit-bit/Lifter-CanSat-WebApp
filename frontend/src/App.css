@@ -3,12 +3,13 @@
     color: white;
 }
 
-#container {
+.container {
     background-color: rgb(23, 23, 23);
     width: 560px;
+    height: 500px;
     border: 2.8px solid rgb(175, 175, 175);
     margin: auto;
-    margin-top: 21vh;
+    margin-top: 3vh;
 }
 
 #title {
@@ -44,4 +45,14 @@
     margin-left: 15%;
     margin-right: 15%;
     font-size: 1.5em;
+}
+
+.button {
+    background-color: rgb(35, 36, 42);
+    border-color: white;
+    padding: 10px;
+    font-size: 1em;
+    display: block;
+    margin:auto;
+    margin-top: 10px;
 }
