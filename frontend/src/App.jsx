@@ -11,7 +11,7 @@ const App = () => {
 
   useEffect(() => {
     socket.on('arduino-conectado', (estado) => {
-      console.log('estado', estado)
+      console.log('arduino conectado: ', estado)
       setEstadoArduino(estado)
     })
 
@@ -25,6 +25,12 @@ const App = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if (!arduinoConectado) {
+      setDatos(null)
+    }
+  }, [arduinoConectado])
+
   return (
     <>
       <div className='container'>
@@ -36,7 +42,7 @@ const App = () => {
       }
       </div>
 
-      {datos && arduinoConectado? 
+      {datos ? 
       <CansatPerspective rotations={datos.rotaciones}/> : null}
     </>
   )
@@ -60,7 +66,7 @@ const Informacion = ({datos}) => {
 }
 
 const CansatPerspective = ({rotations}) => {
-  const [showWireframe, setShowWireframe] = useState(false)
+  const [showWireframe, setShowWireframe] = useState(true)
   return (
     <div className='container'>
       <Canvas>
@@ -101,9 +107,9 @@ const AnimacionCansat = ({rotations}) => {
       meshRef.current.rotation.set(rotations[0],rotations[1],rotations[2])
     }
 
-    meshRef.current.rotation.x += (rotations[0] - meshRef.current.rotation.x) * delta * 2.5;
-    meshRef.current.rotation.y += (rotations[1] - meshRef.current.rotation.y) * delta * 2.5;
-    meshRef.current.rotation.z += (rotations[2] - meshRef.current.rotation.z) * delta * 2.5;
+    meshRef.current.rotation.x += (rotations[0] - meshRef.current.rotation.x) * delta * 2.5
+    meshRef.current.rotation.y += (rotations[1] - meshRef.current.rotation.y) * delta * 2.5
+    meshRef.current.rotation.z += (rotations[2] - meshRef.current.rotation.z) * delta * 2.5
   })
 
   return (

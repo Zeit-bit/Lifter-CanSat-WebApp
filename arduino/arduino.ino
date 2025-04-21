@@ -51,7 +51,8 @@ void loop()
     Serial.println(z);
 
     a++;
-    x += 5 * PI/180;
-    y += 5 * PI/180;
-    z += 5 * PI/180;
+    x += 30 * PI/180;
+    y += 30 * PI/180;
+    z += 30 * PI/180;
+    delay(500);
 }
