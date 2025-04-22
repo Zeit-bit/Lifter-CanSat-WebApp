@@ -56,3 +56,17 @@
     margin:auto;
     margin-top: 10px;
 }
+
+#conexion-puerto {
+    font-size: 1.5em;
+    padding: 10px;
+}
+#conexion-puerto select, input, button{
+    font-size: .8em;
+    background-color: rgb(32, 32, 41);
+    padding: 5px;
+    margin-top: 10px;
+}
+#conexion-puerto button{
+    margin-left: 20px;
+}

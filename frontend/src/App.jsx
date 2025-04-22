@@ -55,13 +55,32 @@ const App = () => {
 }
 
 const ConexionPuerto = ({puertosDisponibles}) => {
+  const [puertoSeleccionado, setPuertoSeleccionado] = useState("")
+  const [baudiosIngresados, setBaudiosIngresados] = useState(9600)
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!puertoSeleccionado || !baudiosIngresados) return
+    const pathSeleccionado = puertosDisponibles.find(puerto => puerto.friendlyName === puertoSeleccionado).path
+    socket.emit('puerto-seleccionado', { path: pathSeleccionado, baudRate: parseInt(baudiosIngresados)})
+  }
+
   return (
-    <ul>
-      {puertosDisponibles ? 
-      puertosDisponibles.map(objeto => <li key={objeto.path}>{objeto.friendlyName}</li>)
-      : 
-      null}
-    </ul>
+    <div id='conexion-puerto'>
+      <form onSubmit={handleSubmit}>
+        <label>Puerto Seleccionado: </label>
+        <select value={puertoSeleccionado} onChange={e => setPuertoSeleccionado(e.target.value)}>
+          {
+            puertosDisponibles.map(puerto => <option key={puerto.path}>{puerto.friendlyName}</option>)
+          }
+        </select>
+        <br/>
+        <label>Baudios: </label>
+        <input type='number' value={baudiosIngresados} onChange={(e) => setBaudiosIngresados(e.target.value)}>
+        </input>
+        <button type='submit'>Establecer</button>
+      </form>
+    </div>
   )
 }
 
