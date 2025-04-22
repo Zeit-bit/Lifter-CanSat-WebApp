@@ -61,15 +61,19 @@ const ConexionPuerto = ({puertosDisponibles}) => {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!puertoSeleccionado || !baudiosIngresados) return
-    const pathSeleccionado = puertosDisponibles.find(puerto => puerto.friendlyName === puertoSeleccionado).path
+    const pathSeleccionado = puertosDisponibles.find(puerto => puerto.friendlyName === puertoSeleccionado)?.path
+    if (!pathSeleccionado) return
     socket.emit('puerto-seleccionado', { path: pathSeleccionado, baudRate: parseInt(baudiosIngresados)})
   }
 
+  if (!puertosDisponibles) return
+  
   return (
     <div id='conexion-puerto'>
       <form onSubmit={handleSubmit}>
         <label>Puerto Seleccionado: </label>
         <select value={puertoSeleccionado} onChange={e => setPuertoSeleccionado(e.target.value)}>
+        <option>--Selecciona puerto--</option>
           {
             puertosDisponibles.map(puerto => <option key={puerto.path}>{puerto.friendlyName}</option>)
           }

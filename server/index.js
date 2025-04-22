@@ -48,6 +48,8 @@ const EncontrarPuertos = async () => {
 
 // Creamos una funcion que se encarga de crear un puerto y parser, ademas de escuchar los diferentes eventos dentro del puerto
 const ConectarPuerto = () => {
+  if (estadoArduino) return
+
   port = new SerialPort({ path: puertoSeleccionado.path, baudRate: puertoSeleccionado.baudRate }) // Creamos el puerto
   parser = port.pipe(new DelimiterParser({ delimiter: '\n' })) // Creamos un parser para que nos divida el serial por cada salto de linea
 
