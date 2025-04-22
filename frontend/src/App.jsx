@@ -8,7 +8,7 @@ const socket = io('http://localhost:3000/')
 const App = () => {
   const [datos, setDatos] = useState(null)
   const [arduinoConectado, setEstadoArduino] = useState(false)
-
+  const [puertosDisponibles, SetPuertosDisponibles] = useState([])
   useEffect(() => {
     socket.on('arduino-conectado', (estado) => {
       console.log('arduino conectado: ', estado)
@@ -19,9 +19,14 @@ const App = () => {
       setDatos(datos)
     })
 
+    socket.on('puertos-disponibles', (puertosRecibidos) => {
+      SetPuertosDisponibles(puertosRecibidos)
+    })
+
     return () => {
       socket.off('arduino-conectado')
       socket.off('nuevos-datos')
+      socket.off('puertos-disponibles')
     }
   }, [])
 
@@ -33,6 +38,7 @@ const App = () => {
 
   return (
     <>
+      <ConexionPuerto puertosDisponibles={puertosDisponibles} />
       <div className='container'>
       <h1 id='title'> - [ Lifter ] - </h1>
       {!arduinoConectado ? 
@@ -45,6 +51,17 @@ const App = () => {
       {datos ? 
       <CansatPerspective rotations={datos.rotaciones}/> : null}
     </>
+  )
+}
+
+const ConexionPuerto = ({puertosDisponibles}) => {
+  return (
+    <ul>
+      {puertosDisponibles ? 
+      puertosDisponibles.map(objeto => <li key={objeto.path}>{objeto.friendlyName}</li>)
+      : 
+      null}
+    </ul>
   )
 }
 
@@ -98,7 +115,7 @@ const AnimacionCansat = ({rotations}) => {
 
   if (!renderizado.current) {
     primeraRotacion.current = rotations
-    console.log(primeraRotacion.current)
+    console.log('Primera rotacion recibida: ', primeraRotacion.current)
     renderizado.current = true
   }
 

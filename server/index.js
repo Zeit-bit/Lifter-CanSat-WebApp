@@ -5,6 +5,7 @@ import { Server } from 'socket.io'
 import { SerialPort } from 'serialport'
 import { DelimiterParser } from '@serialport/parser-delimiter'
 import { Timestamp } from './utils.js'
+import fs from 'fs'
 
 const app = express() // Creamos una instancia de express
 const server = http.createServer(app) // Creamos un servidor http con 'app' como handler
@@ -21,10 +22,33 @@ let parser
 let lineasDelSerial = [] // Almacenamos las líneas recibidas por la comunicacion serial
 let jsonDeDatos = {} // Se actualiza cada vez que recibimos todos los datos
 let estadoArduino = false // Se actualiza dependiendo del estado de conexion del arduino
+let puertos // Se actualiza cada 2 segundos para verificar si existen nuevos puertos y mandarlos al frontend
+let puertoSeleccionado // Se actualiza dependiendo de la emision del frontend
+
+// Si no encuentra el archivo de configuracion del puerto, utiliza valores por defecto
+try {
+  puertoSeleccionado = JSON.parse(fs.readFileSync('./config-port.json'))
+} catch (error) {
+  console.log('Error al cargar puerto de config-port.json, utilizando valores por defecto')
+  puertoSeleccionado = { path: 'COM3', baudRate: 9600 }
+}
+
+// Funcion para encontrar los puertos y emitir cada que haya un cambio al frontend
+const EncontrarPuertos = async () => {
+  let puertosActuales = 0
+  setInterval(async () => {
+    puertos = (await SerialPort.list()).map(p => ({ path: p.path, friendlyName: p.friendlyName }))
+    if (puertosActuales !== puertos.length) {
+      puertosActuales = puertos.length
+      console.log('Puertos disponibles:', puertos)
+      io.emit('puertos-disponibles', puertos)
+    }
+  }, 2000)
+}
 
 // Creamos una funcion que se encarga de crear un puerto y parser, ademas de escuchar los diferentes eventos dentro del puerto
 const ConectarPuerto = () => {
-  port = new SerialPort({ path: 'COM3', baudRate: 9600 }) // Creamos el puerto
+  port = new SerialPort({ path: puertoSeleccionado.path, baudRate: puertoSeleccionado.baudRate }) // Creamos el puerto
   parser = port.pipe(new DelimiterParser({ delimiter: '\n' })) // Creamos un parser para que nos divida el serial por cada salto de linea
 
   // Cuando el puerto escucha el evento 'open' indicamos que se ha abierto el puerto
@@ -56,9 +80,9 @@ const ConectarPuerto = () => {
       }
 
       io.emit('nuevos-datos', jsonDeDatos) // Emitimos el json a todas las conexiones suscritas (para renderizar en el frontend)
-      console.log()
-      console.log(Timestamp()) // Mostramos en consola el tiempo en formato hh:mm:ss:ms
-      console.log('Enviado al frontend:', jsonDeDatos) // Mostramos en consola, el json que se emitio al frontend
+      Timestamp() // Temporalmente para que el linter no marque error
+      // console.log(Timestamp()) // Mostramos en consola el tiempo en formato hh:mm:ss:ms
+      // console.log('Enviado al frontend:', jsonDeDatos) // Mostramos en consola, el json que se emitio al frontend
 
       lineasDelSerial = [] // Vaciamos nuestra lista para la siguiente tanda de datos
     }
@@ -83,13 +107,23 @@ const ConectarPuerto = () => {
   })
 }
 
+// Encontramos los puertos disponibles y los emitimos al frontend
+EncontrarPuertos()
 // Ejecutamos la funcion para conectar el Puerto Serial
 ConectarPuerto()
 
 // Cuando nuestro servidor detecta una conexion emitimos al socket que establecio la conexion el estado del arduino
+// y recibimos el puerto seleccionado en el frontend
 io.on('connection', (socket) => {
   console.log('Cliente conectado')
   socket.emit('arduino-conectado', estadoArduino)
+  socket.emit('puertos-disponibles', puertos)
+
+  socket.on('puerto-seleccionado', (puertoRecibido) => {
+    puertoSeleccionado = puertoRecibido
+    fs.writeFileSync('./config-port.json', JSON.stringify(puertoSeleccionado))
+    port.close()
+  })
 })
 
 // El server escucha en el puerto 3000
