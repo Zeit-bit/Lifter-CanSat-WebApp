@@ -59,6 +59,7 @@ const ConectarPuerto = () => {
     estadoArduino = true
     lineasDelSerial = [] // resetea las lineas en caso de reconexion
     io.emit('arduino-conectado', estadoArduino) // Emitimos el estado de conexion del arduino a las conexiones suscritas
+    io.emit('puerto-establecido', puertoSeleccionado.path)
   })
 
   // Ejecuta el codigo cuando el parser recibe una linea del serial
@@ -120,6 +121,7 @@ io.on('connection', (socket) => {
   console.log('Cliente conectado')
   socket.emit('arduino-conectado', estadoArduino)
   socket.emit('puertos-disponibles', puertos)
+  socket.emit('puerto-establecido', puertoSeleccionado.path)
 
   socket.on('puerto-seleccionado', (puertoRecibido) => {
     puertoSeleccionado = puertoRecibido

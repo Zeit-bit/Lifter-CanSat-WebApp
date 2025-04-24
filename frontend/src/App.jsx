@@ -3,16 +3,22 @@ import { Canvas, useFrame} from '@react-three/fiber'
 import {io} from 'socket.io-client'
 import './App.css'
 
+// Establezco la conexion por websocket al puerto 3000 (backend)
 const socket = io('http://localhost:3000/')
 
 const App = () => {
+
+  // inicializacion de estados
   const [datos, setDatos] = useState(null)
-  const [arduinoConectado, setEstadoArduino] = useState(false)
-  const [puertosDisponibles, SetPuertosDisponibles] = useState([])
+  const [conexionEstablecida, setEstadoConexion] = useState(false)
+  const [puertosDisponibles, setPuertosDisponibles] = useState([])
+  const [puertoEstablecido, setPuertoEstablecido] = useState(null)
+
+  // Suscripcion de los eventos del backend
   useEffect(() => {
     socket.on('arduino-conectado', (estado) => {
       console.log('arduino conectado: ', estado)
-      setEstadoArduino(estado)
+      setEstadoConexion(estado)
     })
 
     socket.on('nuevos-datos', (datos) => {
@@ -20,9 +26,14 @@ const App = () => {
     })
 
     socket.on('puertos-disponibles', (puertosRecibidos) => {
-      SetPuertosDisponibles(puertosRecibidos)
+      setPuertosDisponibles(puertosRecibidos)
     })
 
+    socket.on('puerto-establecido', (puertoRecibido) => {
+      setPuertoEstablecido(puertoRecibido)
+    })
+
+    // En caso de desmontar el componente me desuscribo
     return () => {
       socket.off('arduino-conectado')
       socket.off('nuevos-datos')
@@ -30,27 +41,42 @@ const App = () => {
     }
   }, [])
 
+  // Si se pierde la conexion se restablece a null el estado de los datos
   useEffect(() => {
-    if (!arduinoConectado) {
+    if (!conexionEstablecida) {
       setDatos(null)
     }
-  }, [arduinoConectado])
+  }, [conexionEstablecida])
 
   return (
     <>
-      <ConexionPuerto puertosDisponibles={puertosDisponibles} />
-      <div className='container'>
-      <h1 id='title'> - [ Lifter ] - </h1>
-      {!arduinoConectado ? 
-      <h2 className="notification">Arduino Desconectado</h2> 
-      : 
-      <Informacion datos={datos}></Informacion>
-      }
+      <Encabezado puertosDisponibles={puertosDisponibles} puertoEstablecido={puertoEstablecido}/>
+      {!conexionEstablecida ?
+      <>
+      <h2 className='notificacion rojo'>Sin conexion</h2> 
+      <div className='fondo-imagen'>
+        <img src='../public/sin-conexion.png' height={400}></img>
       </div>
-
-      {datos ? 
-      <CansatPerspective rotations={datos.rotaciones}/> : null}
+      </>
+      : 
+      <Paneles datos={datos}></Paneles>
+      }
     </>
+  )
+}
+
+const Encabezado = ({puertosDisponibles, puertoEstablecido}) => {
+  return (
+    <header id="encabezado">
+        <h1 id="encabezado-titulo" class="blue-background">[ LIFTER ]</h1>
+        <div id="encabezado-conexion">
+            <div id="conexion-seleccion" class="darkgray-background">
+                <p>Puerto establecido:</p>
+                <span id="nombre-puerto">{puertoEstablecido}</span>
+            </div>
+            <ConexionPuerto puertosDisponibles={puertosDisponibles}/>
+        </div>
+    </header>
   )
 }
 
@@ -70,53 +96,109 @@ const ConexionPuerto = ({puertosDisponibles}) => {
   
   return (
     <div id='conexion-puerto'>
-      <form onSubmit={handleSubmit}>
-        <label>Puerto Seleccionado: </label>
-        <select value={puertoSeleccionado} onChange={e => setPuertoSeleccionado(e.target.value)}>
+      <form onSubmit={handleSubmit} id="conexion-form">
+        <select value={puertoSeleccionado} onChange={e => setPuertoSeleccionado(e.target.value)} id="seleccion-puerto" class="darkgray-background">
         <option>--Selecciona puerto--</option>
           {
             puertosDisponibles.map(puerto => <option key={puerto.path}>{puerto.friendlyName}</option>)
           }
         </select>
-        <br/>
-        <label>Baudios: </label>
-        <input type='number' value={baudiosIngresados} onChange={(e) => setBaudiosIngresados(e.target.value)}>
-        </input>
-        <button type='submit'>Establecer</button>
+        <div id="baudios-establecer">
+          <input id="seleccion-baudios" class="darkgray-background" type='number' value={baudiosIngresados} onChange={(e) => setBaudiosIngresados(e.target.value)}></input>
+          <button class="blue-background" type='submit'>Establecer</button>
+        </div>
       </form>
     </div>
   )
 }
 
-const Informacion = ({datos}) => {
+const Paneles = ({datos}) => {
   return (
     <>
     {datos ? 
-    <>
-    <p className="datos">Co2: {datos.co2} ppm</p>
-    <p className="datos">Temperatura: {datos.temperatura} °C</p>
-    <p className="datos">Presion: {datos.presion} kPa</p>
-    <p className="datos">Velocidad Vertical: {datos.velocidad_vertical} m/s</p>
-    <p className="datos">Aceleracion Neta: {datos.aceleracion_neta} m/s²</p>
-    </>
+      <main>
+        <div id="datos-alarmas">
+            {/* {Datos} */}
+            <PanelDatos datos={datos}/>
+
+            {/* {Alarmas } */}
+            <PanelAlarmas />
+        </div>
+
+        {/* {Vista 3D} */}
+        <section id="panel-3d" class="darkgray-background">
+            <div id="contenedor-3d">
+              <Canvas>
+                <AnimacionCansat rotations={datos.rotaciones}/>
+              </Canvas>
+            </div>
+        </section>
+      </main>
     :
-    <h2 className="notification">Esperando datos...</h2>}
+    <>
+      <h2 className='notificacion verde'>Esperando datos...</h2>
+      <div className='fondo-imagen'>
+        <img src='../public/esperando-datos.png' height={400}></img>
+      </div>
+    </>
+    }
     </>
   )
 }
 
-const CansatPerspective = ({rotations}) => {
-  const [showWireframe, setShowWireframe] = useState(true)
+const PanelDato = ({nombre, unidad, datoRecibido}) => {
   return (
-    <div className='container'>
-      <Canvas>
-        <AnimacionCansat rotations={rotations} />
-        {showWireframe ?
-        <PosicionActualCansat rotations={rotations} />
-      : null}
-      </Canvas>
-      <button className="button" onClick={() => setShowWireframe(!showWireframe)}>Toggle Wireframe</button>
+    <div class="panel-dato darkgray-background">
+      <span>{nombre}:</span>
+      <strong>{datoRecibido} {unidad}</strong>
     </div>
+  )
+}
+
+const PanelDatos = ({datos}) => {
+  return (
+    <section id="panel-datos">
+      <PanelDato nombre="Co2" unidad="ppm" datoRecibido={datos.co2}/>
+      <PanelDato nombre="Velocidad Vertical" unidad="m/s" datoRecibido={datos.velocidad_vertical}/>
+      <PanelDato nombre="Aceleración Neta" unidad="m/s²" datoRecibido={datos.aceleracion_neta}/>
+      <PanelDato nombre="Temperatura" unidad="°C" datoRecibido={datos.temperatura}/>
+      <PanelDato nombre="Presión" unidad="kPa" datoRecibido={datos.presion}/>
+    </section>
+  )
+}
+
+const PanelAlarmas = () => {
+  return (
+    <section id="panel-alarmas" class="darkgray-background">
+      <div class="panel-alarma">
+          <span>Temperatura:</span>
+          <div class="contenedor-led">
+              <div class="led-verde"></div>
+              <div class="led-apagado"></div>
+          </div>
+      </div>
+      <div class="panel-alarma">
+          <span>Presión:</span>
+          <div class="contenedor-led">
+              <div class="led-verde"></div>
+              <div class="led-apagado"></div>
+          </div>
+      </div>
+      <div class="panel-alarma">
+          <span>Inclinación X:</span>
+          <div class="contenedor-led">
+              <div class="led-apagado"></div>
+              <div class="led-rojo"></div>
+          </div>
+      </div>
+      <div class="panel-alarma">
+          <span>Inclinación Z:</span>
+          <div class="contenedor-led">
+              <div class="led-verde"></div>
+              <div class="led-apagado"></div>
+          </div>
+      </div>
+    </section>
   )
 }
 
