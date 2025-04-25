@@ -68,9 +68,9 @@ const App = () => {
 const Encabezado = ({puertosDisponibles, puertoEstablecido}) => {
   return (
     <header id="encabezado">
-        <h1 id="encabezado-titulo" class="blue-background">[ LIFTER ]</h1>
+        <h1 id="encabezado-titulo" className="blue-background">[ LIFTER ]</h1>
         <div id="encabezado-conexion">
-            <div id="conexion-seleccion" class="darkgray-background">
+            <div id="conexion-seleccion" className="darkgray-background">
                 <p>Puerto establecido:</p>
                 <span id="nombre-puerto">{puertoEstablecido}</span>
             </div>
@@ -97,15 +97,15 @@ const ConexionPuerto = ({puertosDisponibles}) => {
   return (
     <div id='conexion-puerto'>
       <form onSubmit={handleSubmit} id="conexion-form">
-        <select value={puertoSeleccionado} onChange={e => setPuertoSeleccionado(e.target.value)} id="seleccion-puerto" class="darkgray-background">
+        <select value={puertoSeleccionado} onChange={e => setPuertoSeleccionado(e.target.value)} id="seleccion-puerto" className="darkgray-background">
         <option>--Selecciona puerto--</option>
           {
             puertosDisponibles.map(puerto => <option key={puerto.path}>{puerto.friendlyName}</option>)
           }
         </select>
         <div id="baudios-establecer">
-          <input id="seleccion-baudios" class="darkgray-background" type='number' value={baudiosIngresados} onChange={(e) => setBaudiosIngresados(e.target.value)}></input>
-          <button class="blue-background" type='submit'>Establecer</button>
+          <input id="seleccion-baudios" className="darkgray-background" type='number' value={baudiosIngresados} onChange={(e) => setBaudiosIngresados(e.target.value)}></input>
+          <button className="blue-background" type='submit'>Establecer</button>
         </div>
       </form>
     </div>
@@ -122,11 +122,11 @@ const Paneles = ({datos}) => {
             <PanelDatos datos={datos}/>
 
             {/* {Alarmas } */}
-            <PanelAlarmas />
+            <PanelAlarmas datos={datos}/>
         </div>
 
         {/* {Vista 3D} */}
-        <section id="panel-3d" class="darkgray-background">
+        <section id="panel-3d" className="darkgray-background">
             <div id="contenedor-3d">
               <Canvas>
                 <AnimacionCansat rotations={datos.rotaciones}/>
@@ -148,7 +148,7 @@ const Paneles = ({datos}) => {
 
 const PanelDato = ({nombre, unidad, datoRecibido}) => {
   return (
-    <div class="panel-dato darkgray-background">
+    <div className="panel-dato darkgray-background">
       <span>{nombre}:</span>
       <strong>{datoRecibido} {unidad}</strong>
     </div>
@@ -167,38 +167,31 @@ const PanelDatos = ({datos}) => {
   )
 }
 
-const PanelAlarmas = () => {
+const PanelAlarmas = ({datos}) => {
   return (
-    <section id="panel-alarmas" class="darkgray-background">
-      <div class="panel-alarma">
-          <span>Temperatura:</span>
-          <div class="contenedor-led">
-              <div class="led-verde"></div>
-              <div class="led-apagado"></div>
-          </div>
-      </div>
-      <div class="panel-alarma">
-          <span>Presión:</span>
-          <div class="contenedor-led">
-              <div class="led-verde"></div>
-              <div class="led-apagado"></div>
-          </div>
-      </div>
-      <div class="panel-alarma">
-          <span>Inclinación X:</span>
-          <div class="contenedor-led">
-              <div class="led-apagado"></div>
-              <div class="led-rojo"></div>
-          </div>
-      </div>
-      <div class="panel-alarma">
-          <span>Inclinación Z:</span>
-          <div class="contenedor-led">
-              <div class="led-verde"></div>
-              <div class="led-apagado"></div>
-          </div>
-      </div>
+    <section id="panel-alarmas" className="darkgray-background">
+      <Alarma nombre='Temperatura' datoRecibido={datos.temperatura} min={-10} max={30}/>
+      <Alarma nombre='Presión' datoRecibido={datos.presion} min={-10} max={30}/>
+      <Alarma nombre='Inclinación X' datoRecibido={datos.rotaciones[0]} min={-10} max={Math.PI}/>
+      <Alarma nombre='Inclinación Z' datoRecibido={datos.rotaciones[2]} min={-10} max={Math.PI}/>
     </section>
+  )
+}
+
+const Alarma = ({nombre, datoRecibido, max, min}) => {
+  let estadoLed = ['led-verde', 'led-apagado']
+  if (datoRecibido > max || datoRecibido < min) {
+    estadoLed = ['led-apagado','led-rojo']
+  }
+
+  return (
+    <div className="panel-alarma">
+      <span>{nombre}:</span>
+      <div className="contenedor-led">
+        <div className={estadoLed[0]}></div>
+        <div className={estadoLed[1]}></div>
+      </div>
+    </div>
   )
 }
 
