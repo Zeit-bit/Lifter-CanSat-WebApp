@@ -23,36 +23,32 @@ void loop()
 
     // Imprimir los datos en el monitor serial
     Serial.println("Datos recibidos:");
+
+    Serial.print("Temp: ");
+    Serial.println(temp);
+
+    Serial.print("Presion: ");
+    Serial.println(pres);
+
     Serial.print("CO2: ");
-    Serial.print(co2Str);
-    Serial.println(" ppm");
+    Serial.println(co2Str);
 
-    Serial.print("Temperatura: ");
-    Serial.print(temp);
-    Serial.println(" °C");
+    Serial.print("Accz: ");
+    Serial.println(acc);
 
-    Serial.print("Presión: ");
-    Serial.print(pres);
-    Serial.println(" hPa");
-
-    Serial.print("Velocidad Vertical: ");
-    Serial.print(vspd);
-    Serial.println(" m/s");
-
-    Serial.print("Aceleración Neta: ");
-    Serial.print(acc);
-    Serial.println(" m/s²");
+    Serial.print("VelV: ");
+    Serial.println(vspd);
 
     Serial.print("Rotaciones: ");
     Serial.print(x);
     Serial.print(" ");
-    Serial.print(y);
+    Serial.print(0);
     Serial.print(" ");
     Serial.println(z);
 
     a++;
-    x += 30 * PI/180;
-    y += 30 * PI/180;
-    z += 30 * PI/180;
+    x += 30;
+    y += 0;
+    z += 30;
     delay(500);
 }

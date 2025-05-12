@@ -66,26 +66,35 @@ const ConectarPuerto = () => {
   parser.on('data', (data) => {
     // Decodifiamos la linea recibida como buffer de Uint8Array (de 0 a 255 cada caracter) y removemos cualquier espacio antes y despues del contenido
     const line = new TextDecoder().decode(new Uint8Array(data)).trim()
-    if (line.startsWith('Datos')) return // Ignora la linea que contiene el encabezado
+    if (line.startsWith('===')) return // Ignora la linea que contiene el encabezado
 
     lineasDelSerial.push(line) // Añadimos la linea a nuestra lista
+
+    /*
+    Datos Recibidos:
+    Temp: x
+    Presion: x
+    CO2: x
+    Accz: x
+    VelV: x
+    Rotaciones: x y z
+    */
 
     // Parseamos las lineas como Json cuando tenemos 5 lineas
     if (lineasDelSerial.length === 6) {
       lineasDelSerial = lineasDelSerial.map(linea => linea.split(': ')[1])
       jsonDeDatos = {
-        co2: parseFloat(lineasDelSerial[0]),
-        temperatura: parseFloat(lineasDelSerial[1]),
-        presion: parseFloat(lineasDelSerial[2]),
-        velocidad_vertical: parseFloat(lineasDelSerial[3]),
-        aceleracion_neta: parseFloat(lineasDelSerial[4]),
-        rotaciones: lineasDelSerial[5].split(' ').map(item => parseFloat(item))
+        temperatura: parseFloat(lineasDelSerial[0]),
+        presion: parseFloat(lineasDelSerial[1]),
+        co2: parseFloat(lineasDelSerial[2]),
+        aceleracion_neta: parseFloat(lineasDelSerial[3]),
+        velocidad_vertical: parseFloat(lineasDelSerial[4]),
+        rotaciones: lineasDelSerial[5].split(' ').map(item => parseFloat(item) * Math.PI / 180)
       }
-
       io.emit('nuevos-datos', jsonDeDatos) // Emitimos el json a todas las conexiones suscritas (para renderizar en el frontend)
       Timestamp() // Temporalmente para que el linter no marque error
       // console.log(Timestamp()) // Mostramos en consola el tiempo en formato hh:mm:ss:ms
-      // console.log('Enviado al frontend:', jsonDeDatos) // Mostramos en consola, el json que se emitio al frontend
+      console.log('Enviado al frontend:', jsonDeDatos) // Mostramos en consola, el json que se emitio al frontend
 
       lineasDelSerial = [] // Vaciamos nuestra lista para la siguiente tanda de datos
     }

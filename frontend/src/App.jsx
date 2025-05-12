@@ -170,10 +170,10 @@ const PanelDatos = ({datos}) => {
 const PanelAlarmas = ({datos}) => {
   return (
     <section id="panel-alarmas" className="darkgray-background">
-      <Alarma nombre='Temperatura' datoRecibido={datos.temperatura} min={-10} max={30}/>
-      <Alarma nombre='Presión' datoRecibido={datos.presion} min={-10} max={30}/>
-      <Alarma nombre='Inclinación X' datoRecibido={datos.rotaciones[0]} min={-10} max={Math.PI}/>
-      <Alarma nombre='Inclinación Z' datoRecibido={datos.rotaciones[2]} min={-10} max={Math.PI}/>
+      <Alarma nombre='Temperatura' datoRecibido={datos.temperatura} min={-10} max={40}/>
+      <Alarma nombre='Presión' datoRecibido={datos.presion} min={1000} max={1300}/>
+      <Alarma nombre='Inclinación X' datoRecibido={datos.rotaciones[0]} min={-45 * Math.PI/180} max={45 * Math.PI/180}/>
+      <Alarma nombre='Inclinación Z' datoRecibido={datos.rotaciones[2] * -1} min={-45 * Math.PI/180} max={45 * Math.PI/180}/>
     </section>
   )
 }
@@ -195,18 +195,8 @@ const Alarma = ({nombre, datoRecibido, max, min}) => {
   )
 }
 
-const PosicionActualCansat = ({rotations}) => {
-  return (
-    <>
-      <mesh rotation={rotations}>
-      <boxGeometry args={[2,3.5,2]}/>
-      <meshBasicMaterial color='gray' wireframe/>
-      </mesh>
-    </>
-  )
-}
-
-const AnimacionCansat = ({rotations}) => {
+const AnimacionCansat = (props) => {
+  const rotations = [props.rotations[0], props.rotations[1], props.rotations[2] * -1]
   const meshRef = useRef()
   const renderizado = useRef(false)
   const primeraRotacion = useRef([0,0,0])
