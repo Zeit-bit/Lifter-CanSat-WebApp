@@ -16,9 +16,9 @@
   "license": "ISC",
   "description": "A web app for the casat 'Lifter'",
   "dependencies": {
-    "express": "5.1.0",
-    "serialport": "13.0.0",
-    "socket.io": "4.8.1"
+    "express": "^5.1.0",
+    "serialport": "^13.0.0",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
