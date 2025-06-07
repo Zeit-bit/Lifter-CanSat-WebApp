@@ -1,6 +1,8 @@
+// Sketch de simulación de datos para desarrollo sin el cansat
 void setup()
 {
 	Serial.begin(9600);
+    Serial.println("=== RECEPTOR LORA ACTIVO ===");
 }
 
 float a = 0;
@@ -10,19 +12,14 @@ float z = 2;
 
 void loop()
 {
-    float co2Str  = 10 + a;
-    String tempStr = "11";
-    String presStr = "12";
-    String velStr  = "13";
-    String accStr  = "14";
-
-    float temp = tempStr.toFloat() + a;
-    float pres = presStr.toFloat() + a;
-    float vspd = velStr.toFloat() + a;
-    float acc  = accStr.toFloat() + a;
+    float co2  = 10 + a;
+    float temp = 11 + a;
+    float pres = 12 + a;
+    float vspd  = 13 + a;
+    float acc  = 14 + a;
 
     // Imprimir los datos en el monitor serial
-    Serial.println("Datos recibidos:");
+    Serial.println("=== RECEPTOR ===");
 
     Serial.print("Temp: ");
     Serial.println(temp);
@@ -31,7 +28,7 @@ void loop()
     Serial.println(pres);
 
     Serial.print("CO2: ");
-    Serial.println(co2Str);
+    Serial.println(co2);
 
     Serial.print("Accz: ");
     Serial.println(acc);
@@ -48,7 +45,7 @@ void loop()
 
     a++;
     x += 30;
-    y += 0;
+    y += 30;
     z += 30;
     delay(500);
 }

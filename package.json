@@ -1,5 +1,5 @@
 {
-  "name": "arduino",
+  "name": "lifter-cansat-webapp",
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
@@ -8,12 +8,13 @@
   },
   "scripts": {
     "start": "concurrently \"npm run dev\" \"cd frontend && npm run dev\"",
+    "setup": "npm install && cd frontend && npm install",
     "dev": "node --watch ./server/index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Lifter",
   "license": "ISC",
-  "description": "",
+  "description": "A web app for the casat 'Lifter'",
   "dependencies": {
     "express": "5.1.0",
     "serialport": "13.0.0",
